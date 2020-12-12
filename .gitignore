@@ -3,3 +3,7 @@ obj
 .vscode
 appsettings.json
 *.db
+client-app/node_modules
+client-app/.idea
+client-app/dist
+client-app/debug.log
