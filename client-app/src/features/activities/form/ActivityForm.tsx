@@ -1,4 +1,4 @@
-import React, { FormEvent, ReactHTML, useState } from "react";
+import React, { FormEvent, useState } from "react";
 import { Segment, Form, Button } from "semantic-ui-react";
 import { IActivity } from "../../../app/models/activity";
 import { v4 as uuid } from "uuid";
@@ -12,13 +12,13 @@ interface IProps {
 
 export const ActivityForm: React.FC<IProps> = ({
   setEditMode,
-  selectedActivity,
+  selectedActivity :initialFormState ,
   createActivity,
   editActivity,
 }) => {
   const initializeForm = () => {
-    if (selectedActivity) {
-      return selectedActivity;
+    if (initialFormState) {
+      return initialFormState;
     } else {
       return {
         id: "",
@@ -49,9 +49,9 @@ export const ActivityForm: React.FC<IProps> = ({
     if (activity.id.length === 0) {
       let newActivity = {
         ...activity,
-        id: uuid,
+        id: uuid(),
       };
-      createActivity(activity);
+      createActivity(newActivity);
     } else {
       editActivity(activity);
     }

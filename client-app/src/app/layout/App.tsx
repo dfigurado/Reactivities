@@ -31,7 +31,7 @@ const App = () => {
   }
 
   const handleEditActivity = (activity: IActivity) => {
-    setActivites([...activities.filter(a => a.id != activity.id), activity]);
+    setActivites([...activities.filter(a => a.id !== activity.id), activity]);
     setSelectedActivity(activity);
     setEditMode(false);
   }
