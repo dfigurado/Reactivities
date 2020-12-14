@@ -9,7 +9,6 @@ using MediatR;
 using Persistence;
 using Application.Activities;
 
-
 namespace API
 {
     public class Startup
@@ -33,9 +32,10 @@ namespace API
                     policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
                 });
             });
+            // MediatR framework used to implent the mediator pattern in .NET CORE API
             services.AddMediatR(typeof(List.Handler).Assembly);
             services.AddControllers();
-            //services.AddMvc(options => options.EnableEndpointRouting = false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            //services.AddMvc(options => options.EnableEndpointRouting = false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0); //TODO: Change this to MVC
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
