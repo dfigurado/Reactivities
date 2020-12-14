@@ -25,6 +25,7 @@ namespace API.Controllers
             return await _mediator.Send(new List.Query());
         }
 
+        // GET api/activity/{GUID}
         [HttpGet("{id}")]
         public async Task<ActionResult<Activity>> Details(Guid id)
         {
@@ -37,7 +38,7 @@ namespace API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async  Task<ActionResult<Unit>> Edit(Guid id, Edit.Command  command){
+        public async  Task<ActionResult<Unit>> Edit(Guid id, Edit.Command command){
             command.Id = id;
             return await _mediator.Send(command);
         }
