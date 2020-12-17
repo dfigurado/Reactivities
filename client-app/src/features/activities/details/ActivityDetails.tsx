@@ -1,29 +1,23 @@
-import { observer } from "mobx-react-lite";
-import React, { useContext, useEffect } from "react";
-import { Link, RouteComponentProps } from "react-router-dom";
-import { Card, Image, Button } from "semantic-ui-react";
-import Loading from "../../../app/layout/Loading";
-import ActivityStore from "../../../app/stores/activityStore";
+import { observer } from 'mobx-react-lite';
+import React, { useContext, useEffect } from 'react';
+import { Card, Image, Button } from 'semantic-ui-react';
+import { Link, RouteComponentProps } from 'react-router-dom';
+import Loading from  '../../../app/layout/Loading';
+import ActivityStore from '../../../app/stores/activityStore';
 
-interface Params {
-  id: string;
+interface DetailsParams {
+  id:string
 }
 
-const ActivityDetails: React.FC<RouteComponentProps<Params>> = ({ match, history }) => {
+const ActivityDetails: React.FC<RouteComponentProps<DetailsParams>> = ({ match, history }) => {
   const activityStore = useContext(ActivityStore);
-  const {
-    activity,
-    loadActivity,
-    loadingInitial,
-  } = activityStore;
+  const { activity, loadActivity, loadingInitial } = activityStore;
 
   useEffect(() => {
     loadActivity(match.params.id);
-  }, [loadActivity, match.params.id]);
+  },[loadActivity, match.params.id])
 
-  if (loadingInitial || !activity) {
-    return <Loading content="Loading content.." />;
-  }
+  if (loadingInitial || !activity) return <Loading content='Loading activity...' />
 
   return (
     <Card fluid>
@@ -42,17 +36,17 @@ const ActivityDetails: React.FC<RouteComponentProps<Params>> = ({ match, history
       <Card.Content extra>
         <Button.Group widths={2}>
           <Button
+            as={Link} 
+            to={`/mange/${activity.id}`}
             basic
             color="blue"
             content="Edit"
-            as={Link}
-            to={`/update/${activity.id}`}
           />
           <Button
             basic
             color="grey"
             content="Cancel"
-            onClick={() =>  history.push('/activities')}
+            onClick={() => history.push('/activities')}
           />
         </Button.Group>
       </Card.Content>
