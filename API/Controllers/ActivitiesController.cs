@@ -1,10 +1,14 @@
 using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using MediatR;
-using Domain;
+using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Mvc;
+
 using Application.Activities;
+
+using Domain;
+
+using MediatR;
 
 namespace API.Controllers
 {

@@ -9,6 +9,9 @@ using MediatR;
 using Persistence;
 using Application.Activities;
 
+using FluentValidation.AspNetCore;
+using API.Middleware;
+
 namespace API
 {
     public class Startup
@@ -34,16 +37,22 @@ namespace API
             });
             // MediatR framework used to implent the mediator pattern in .NET CORE API
             services.AddMediatR(typeof(List.Handler).Assembly);
-            services.AddControllers();
-            //services.AddMvc(options => options.EnableEndpointRouting = false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0); //TODO: Change this to MVC
+            services.AddControllers()
+                .AddFluentValidation(cfg => 
+                { 
+                    cfg.RegisterValidatorsFromAssemblyContaining<Create>(); 
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseMiddleware<ExceptionMiddleware>();
+            
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                //app.UseDeveloperExceptionPage();
+
             }
 
             //app.UseHttpsRedirection();
@@ -51,7 +60,9 @@ namespace API
             app.UseCors("CorsPolicy");
             app.UseRouting();
             app.UseAuthorization();
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints => {
+                 endpoints.MapControllers();
+            });
             //app.UseMvc();
         }
     }

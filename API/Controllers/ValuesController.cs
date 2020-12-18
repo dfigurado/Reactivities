@@ -1,9 +1,11 @@
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 using Domain;
+
 using Persistence;
 
 namespace API.Controllers
@@ -31,6 +33,9 @@ namespace API.Controllers
         public async Task<ActionResult<Value>> Get(int id)
         {
             var value = await _context.Values.FindAsync(id);
+            if (value == null){
+                return NotFound();
+            }
             return Ok(value);
         }
 

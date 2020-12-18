@@ -27,26 +27,24 @@ class ActivityStore {
             const date = activity.date.split('T')[0];
             activities[date] = activities[date] ? [...activities[date], activity] : [activity];
             return activities;
-        }, {} as {[key: string]: IActivity[]}));
+        }, {} as { [key: string]: IActivity[] }));
     }
 
     @action loadActivities = async () => {
         this.loadingInitial = true; // <= mobx allows us to mutate the state. Unlike Redux.
         try {
             const activities = await agent.activities.list();
-            runInAction('Loading Activities', () => {
+            runInAction('loading activities', () => {
                 activities.forEach((activity) => {
                     activity.date = activity.date.split('.')[0];
                     this.activityRegistry.set(activity.id, activity);
                     this.loadingInitial = false
                 });
             });
-            //console.log(this.groupActivitiesByDate(activities));
         } catch (error) {
-            runInAction('Load activities errors', () => {
+            runInAction('load activities error', () => {
                 this.loadingInitial = false;
             });
-            console.log(error);
         }
     }
 
@@ -70,6 +68,7 @@ class ActivityStore {
             }
         }
     }
+
     @action clearActivity = () => {
         this.activity = null;
     }
