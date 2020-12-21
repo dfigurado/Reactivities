@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "module": "esnext",
@@ -22,7 +22,7 @@
     "experimentalDecorators": true
   },
   "include": [
-    "src"
-  ],
-  "types":["webrtc"]
+    "src",
+    "./typings-custom/**/*.ts"
+  ]
 }
