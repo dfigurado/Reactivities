@@ -1,16 +1,24 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 using MediatR;
-using Persistence;
-using Application.Activities;
-
 using FluentValidation.AspNetCore;
+
+using Domain;
+using Persistence;
 using API.Middleware;
+using Application.Activities;
+using Application.Interfaces;
+using Infrastructure.Security;
+using System.Text;
 
 namespace API
 {
@@ -26,29 +34,58 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DataContext>(opt => {
+            services.AddDbContext<DataContext>(opt =>
+            {
                 opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
             });
             // CORS policy for react app
-            services.AddCors(opt => {
-                opt.AddPolicy("CorsPolicy", policy => {
+            services.AddCors(opt =>
+            {
+                opt.AddPolicy("CorsPolicy", policy =>
+                {
                     policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
                 });
             });
             // MediatR framework used to implent the mediator pattern in .NET CORE API
             services.AddMediatR(typeof(List.Handler).Assembly);
+            services.AddMvc(opt =>
+            {
+                opt.EnableEndpointRouting = false;
+            }).AddFluentValidation(cfg =>
+                cfg.RegisterValidatorsFromAssemblyContaining<Create>())
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            /*
             services.AddControllers()
                 .AddFluentValidation(cfg => 
                 { 
                     cfg.RegisterValidatorsFromAssemblyContaining<Create>(); 
                 });
+            */
+            var builder = services.AddIdentityCore<AppUser>();
+            var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
+            identityBuilder.AddEntityFrameworkStores<DataContext>();
+            identityBuilder.AddSignInManager<SignInManager<AppUser>>();
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["TokenKey"]));
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
+            {
+                opt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = key,
+                    ValidateAudience = false,
+                    ValidateIssuer = false
+                };
+            });
+            services.AddScoped<IJwtGenerator, JwtGenerator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseMiddleware<ExceptionMiddleware>();
-            
+
             if (env.IsDevelopment())
             {
                 //app.UseDeveloperExceptionPage();
@@ -56,14 +93,17 @@ namespace API
             }
 
             //app.UseHttpsRedirection();
-
-            app.UseCors("CorsPolicy");
             app.UseRouting();
+            app.UseCors("CorsPolicy");
+            app.UseAuthentication();
             app.UseAuthorization();
-            app.UseEndpoints(endpoints => {
-                 endpoints.MapControllers();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
             });
-            //app.UseMvc();
+             /*
+                app.UseMvc();
+            */
         }
     }
 }
