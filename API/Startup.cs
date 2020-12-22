@@ -19,6 +19,8 @@ using Application.Activities;
 using Application.Interfaces;
 using Infrastructure.Security;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace API
 {
@@ -51,6 +53,8 @@ namespace API
             services.AddMvc(opt =>
             {
                 opt.EnableEndpointRouting = false;
+                var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                opt.Filters.Add(new AuthorizeFilter(policy));
             }).AddFluentValidation(cfg =>
                 cfg.RegisterValidatorsFromAssemblyContaining<Create>())
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
@@ -79,6 +83,7 @@ namespace API
                 };
             });
             services.AddScoped<IJwtGenerator, JwtGenerator>();
+            services.AddScoped<IUserAccessor, UserAccessor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -4,11 +4,12 @@ using System.Threading.Tasks;
 
 using Application.Exceptions;
 using Application.Interfaces;
+
 using Domain;
-using FluentValidation;
 using MediatR;
+
+using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using Persistence;
 
 namespace Application.User
 {
