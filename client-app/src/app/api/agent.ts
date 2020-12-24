@@ -1,11 +1,17 @@
 import axios, { AxiosResponse } from 'axios';
-
 import { IActivity } from "../../app/models/activity"
 import { history } from '../..';
 import { toast } from 'react-toastify';
 import { IUser, IUserFormValues } from '../models/user';
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
+
+axios.interceptors.request.use((config) => { 
+    const token = window.localStorage.getItem('jwt'); // Lookup local storage for jwt token
+    if (token)
+        config.headers.Authorization = `Bearer ${token}`; //Attach jwt token to request header.
+    return config;
+},error => { return Promise.reject(error)});
 
 // Intercept exceptions from API
 axios.interceptors.response.use(undefined, error => {
