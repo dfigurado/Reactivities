@@ -14,6 +14,7 @@ using FluentValidation.AspNetCore;
 
 using Domain;
 using Persistence;
+using AutoMapper;
 using API.Middleware;
 using Application.Activities;
 using Application.Interfaces;
@@ -38,6 +39,7 @@ namespace API
         {
             services.AddDbContext<DataContext>(opt =>
             {
+                opt.UseLazyLoadingProxies();
                 opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
             });
             // CORS policy for react app
@@ -50,6 +52,7 @@ namespace API
             });
             // MediatR framework used to implent the mediator pattern in .NET CORE API
             services.AddMediatR(typeof(List.Handler).Assembly);
+            services.AddAutoMapper(typeof(List.Handler));
             services.AddMvc(opt =>
             {
                 opt.EnableEndpointRouting = false;
