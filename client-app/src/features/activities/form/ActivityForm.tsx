@@ -21,7 +21,7 @@ import DateInput from "../../../app/common/form/DateInput";
 
 import category from "../../../app/common/options/categoryOptions";
 
-import concatinateDateAndTime from "../../../app/common/util/Util";
+import { concatinateDateAndTime } from "../../../app/common/util/Util";
 
 import {
   combineValidators,
