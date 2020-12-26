@@ -15,7 +15,7 @@ namespace Application.Activities
         public class Command : IRequest
         {
             // Command logic
-            public Guid Id { get; set}
+            public Guid Id { get; set;}
         }
 
         public class Handler : IRequestHandler<Command>
@@ -49,7 +49,8 @@ namespace Application.Activities
                 if (attendence.IsHost)
                     throw new RestException(HttpStatusCode.BadRequest, new { attendence = "You cannot removed your self from host"});
                 
-                _context.UserActivities.Remove(attendence)
+                _context.UserActivities.Remove(attendence);
+
                 var success = await _context.SaveChangesAsync() > 0;
 
                 if (success) return Unit.Value;
