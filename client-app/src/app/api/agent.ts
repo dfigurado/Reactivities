@@ -1,7 +1,8 @@
 import axios, { AxiosResponse } from 'axios';
-import { IActivity } from "../../app/models/activity"
-import { history } from '../..';
 import { toast } from 'react-toastify';
+import { history } from '../..';
+import { IProfile } from '../../app/models/profile';
+import { IActivity } from '../../app/models/activity';
 import { IUser, IUserFormValues } from '../models/user';
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
@@ -11,7 +12,7 @@ axios.interceptors.request.use((config) => {
     if (token)
         config.headers.Authorization = `Bearer ${token}`; //Attach jwt token to request header.
     return config;
-},error => { return Promise.reject(error)});
+}, error => { return Promise.reject(error)});
 
 // Intercept exceptions from API
 axios.interceptors.response.use(undefined, error => {
@@ -64,7 +65,12 @@ const user = {
     register: (user: IUserFormValues): Promise<IUser> => requests.post(`/user/register`, user),
 }
 
+const profiles = {
+    get: (username: string): Promise<IProfile> => requests.get(`/profiles/${username}`),
+}
+
 export default {
     activities,
-    user
+    user,
+    profiles
 }
