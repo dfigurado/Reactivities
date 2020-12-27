@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using Application.Activities;
 
-using Domain;
-
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Application.Dto;

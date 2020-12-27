@@ -22,6 +22,7 @@ using Infrastructure.Security;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Infrastructure.Photos;
 
 namespace API
 {
@@ -74,9 +75,11 @@ namespace API
             identityBuilder.AddEntityFrameworkStores<DataContext>();
             identityBuilder.AddSignInManager<SignInManager<AppUser>>();
             // Custome Authorization policy
-            services.AddAuthorization(opt => {
-                opt.AddPolicy("IsActivityHost", policy => {
-                    policy.Requirements.Add(new IsHostRequirement());     
+            services.AddAuthorization(opt =>
+            {
+                opt.AddPolicy("IsActivityHost", policy =>
+                {
+                    policy.Requirements.Add(new IsHostRequirement());
                 });
             });
             services.AddTransient<IAuthorizationHandler, IsHostRequirementHandler>();
@@ -94,6 +97,8 @@ namespace API
             });
             services.AddScoped<IJwtGenerator, JwtGenerator>();
             services.AddScoped<IUserAccessor, UserAccessor>();
+            services.AddScoped<IImageAccessor, ImageAccessor>();
+            services.Configure<CloudinarySettings>(Configuration.GetSection("Cloudinary"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -116,9 +121,9 @@ namespace API
             {
                 endpoints.MapControllers();
             });
-             /*
-                app.UseMvc();
-            */
+            /*
+               app.UseMvc();
+           */
         }
     }
 }
