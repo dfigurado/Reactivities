@@ -3,6 +3,8 @@ appsettings.json
 
 Core/.vscode
 
+Core/API/obj
+Core/API/bin
 Core/Application/obj
 Core/Application/bin
 Core/Domain/obj
