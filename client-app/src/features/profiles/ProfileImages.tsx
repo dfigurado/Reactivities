@@ -1,13 +1,20 @@
 import React, { useContext, useState } from "react";
 import PhotoUploadWidget  from '../../app/common/imageUpload/imageUploadWidget';
+import { observer } from "mobx-react-lite";
 import { RootStoreContext } from "../../app/stores/rootStore";
 import { Card, Header, Tab, Image, Button, Grid } from "semantic-ui-react";
 
-
 const ProfileImages: React.FC = () => {
   const rootStore = useContext(RootStoreContext);
-  const { profile, isCurrentUser } = rootStore.profileStore;
-  const [addPhotoMode, setAddPhotoMode] = useState(true);
+  const { profile, isCurrentUser, uploadImage, uploadingImage, setMainPhoto, deletePhoto, loading } = rootStore.profileStore;
+
+  const [ target, setTarget ] = useState<string | undefined>(undefined);
+  const [ deleteTarget, setDeleteTarget ] = useState<string | undefined>(undefined);
+  const [ addPhotoMode, setAddPhotoMode ] = useState(false);
+
+  const handleUploadImage = (photo:Blob) => {
+    uploadImage(photo).then(() => setAddPhotoMode(false))
+  }
 
   return (
     <Tab.Pane>
@@ -25,7 +32,7 @@ const ProfileImages: React.FC = () => {
         </Grid.Column>
         <Grid.Column width={16}>
           {addPhotoMode ? (
-            <PhotoUploadWidget />
+            <PhotoUploadWidget  uploadPhoto={handleUploadImage}  loading={uploadingImage}/>
           ) : (
             <Card.Group itemsPerRow={5}>
               {profile &&
@@ -34,8 +41,29 @@ const ProfileImages: React.FC = () => {
                     <Image src={photo.url} />
                     {isCurrentUser && 
                         <Button.Group fluid widths={2}>
-                            <Button basic positive content='Main'/>
-                            <Button basic negative icon='trash'/>
+                            <Button
+                                namne={photo.id}
+                                basic positive
+                                content='Main'
+                                loading={loading && target === photo.id}
+                                onClick={(e) =>
+                                {
+                                  setMainPhoto(photo);
+                                  setTarget(e.currentTarget.name);
+                                }}
+                            />
+                            <Button
+                                basic
+                                negative
+                                icon='trash'
+                                name={photo.id}
+                                disabled={photo.isMain}
+                                onClick={(e) => {
+                                  deletePhoto(photo);
+                                  setDeleteTarget(e.currentTarget.name);
+                                }}
+                                loading={loading && deleteTarget === photo.id}
+                            />
                         </Button.Group>
                     }
                   </Card>
@@ -48,4 +76,4 @@ const ProfileImages: React.FC = () => {
   );
 };
 
-export default ProfileImages;
+export default observer(ProfileImages);

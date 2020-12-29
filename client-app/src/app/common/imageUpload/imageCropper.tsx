@@ -27,7 +27,7 @@ const ImageCropper: React.FC<IProps> = ({ setImage, imagePreview }) => {
       ref={cropper}
       src={imagePreview}
       style={{ height: 200, width: "100%" }}
-      aspectRatio={1 / 1}
+      aspectRatio={1}
       preview='.img-preview'
       guides={false}
       viewMode={1}
