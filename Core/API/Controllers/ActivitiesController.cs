@@ -16,9 +16,11 @@ namespace API.Controllers
     {
         // GET api/activities
         [HttpGet]
-        public async Task<ActionResult<List<ActivityDto>>> List()
+        public async Task<ActionResult<List.ActivitiesEnvelop>> List(int? limit, 
+            int? offSet, bool isGoing, bool isHost, DateTime? startDate)
         {
-            return await Mediator.Send(new List.Query());
+            return await Mediator.Send(new List.Query(limit, 
+                offSet, isGoing, isHost, startDate));
         }
 
         // GET api/activity/{GUID}
@@ -53,13 +55,13 @@ namespace API.Controllers
         [HttpPost("{id}/attend")]
         public async Task<ActionResult<Unit>> Attend(Guid id)
         {
-            return await Mediator.Send(new Attend.Command{ Id = id});
+            return await Mediator.Send(new Attend.Command { Id = id });
         }
 
         [HttpDelete("{id}/attend")]
         public async Task<ActionResult<Unit>> Unattend(Guid id)
         {
-            return await Mediator.Send(new Unattend.Command{Id = id});
+            return await Mediator.Send(new Unattend.Command { Id = id });
         }
     }
 }
