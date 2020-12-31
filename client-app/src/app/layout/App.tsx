@@ -1,92 +1,70 @@
-import React, { useState, useEffect, Fragment, SyntheticEvent } from "react";
-import { IActivity } from "../models/activity";
+import React, { useContext, useEffect, Fragment } from "react";
 import { Container } from "semantic-ui-react";
 import NavBar from "../../features/nav/NavBar";
 import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
-import Loading from '../layout/Loading';
-import agent from '../api/agent';
+import { observer } from "mobx-react-lite";
+import {
+  Route,
+  RouteComponentProps,
+  Switch,
+  withRouter,
+} from "react-router-dom";
+import HomePage from '../../features/home/homePage';
+import ActivityForm from "../../features/activities/form/ActivityForm";
+import ActivityDetails from "../../features/activities/activitydetails/ActivityDetails";
+import NotFound from "./NotFound";
+import ProfilePage from '../../features/profiles/ProfilePage';
+import LoginForm from '../../features/activities/user/LoginForm';
+import ModalContainer from '../common/modals/modalContainer';
+import { ToastContainer } from "react-toastify";
+import { RootStoreContext } from "../stores/rootStore";
+import Loading from "./Loading";
+import PrivateRoute from './PrivateRoute';
 
-const App = () => {
-  //Hooks
-  const [activities, setActivites] = useState<IActivity[]>([]);
-  const [selectedActivity, setSelectedActivity] = useState<IActivity | null>(
-    null
-  );
-  const [editMode, setEditMode] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [target, setTarget] = useState('');
-
-  const hanleSelectActivity = (id: string) => {
-    setSelectedActivity(activities.filter((a) => a.id === id)[0]);
-    setEditMode(false);
-  };
-
-  const handleOpenCreateForm = () => {
-    setSelectedActivity(null);
-    setEditMode(true);
-  }
-
-  const handleCreateActivity = (activity:IActivity) => {
-    setSubmitting(true);
-    agent.activities.create(activity).then(() => {
-      setActivites([...activities, activity]);
-      setSelectedActivity(activity);
-      setEditMode(false);
-    }).then(() => setSubmitting(false));
-  }
-
-  const handleEditActivity = (activity: IActivity) => {
-    setSubmitting(true);
-    agent.activities.update(activity).then(() => {
-      setActivites([...activities.filter(a => a.id !== activity.id), activity]);
-      setSelectedActivity(activity);
-      setEditMode(false);
-    }).then(() => setSubmitting(false));
-  }
-
-  const handleDeleteActivity = (event: SyntheticEvent<HTMLButtonElement>, id:string) => {
-    setSubmitting(true);
-    setTarget(event.currentTarget.id);
-    agent.activities.delete(id).then(() =>  {
-      setActivites([...activities.filter(a => a.id !== id)]);
-    }).then(() => setSubmitting(false));
-  }
+const App: React.FC<RouteComponentProps> = ({ location }) => {
+  const rootStore = useContext(RootStoreContext);
+  const { setAppLoaded, token, appLoaded } = rootStore.commonStore;
+  const { getUser } = rootStore.userStore;
 
   useEffect(() => {
-    agent.activities.list().then(response => { 
-      let activities:IActivity[] = [];
-      response.forEach((activity) => {
-         activity.date = activity.date.split('.')[0];
-         activities.push(activity);
-      })
-      setActivites(activities);
-    }).then(() => setLoading(false));
-  }, []);
-
-  if (loading)
-    return <Loading content='Loading activities...' />
+    if (token) {
+        getUser().finally(() => setAppLoaded());
+    } else {
+      setAppLoaded();
+    }
+  }, [getUser, setAppLoaded, token]);
+  
+  if (!appLoaded) return <Loading content='Loading app.....' />
 
   return (
     <Fragment>
-      <NavBar openCreateForm={handleOpenCreateForm} />
-      <Container style={{ marginTop: "10em" }}>
-        <ActivityDashboard
-          activities={activities}
-          selectActivity={hanleSelectActivity}
-          selectedActivity={selectedActivity}
-          editMode={editMode}
-          setEditMode={setEditMode}
-          setSelectedActivity={setSelectedActivity}
-          createActivity={handleCreateActivity}
-          editActivity={handleEditActivity}
-          deleteActivity={handleDeleteActivity}
-          submitting={submitting}
-          target={target}
-        />
-      </Container>
+      <ModalContainer />
+      <ToastContainer position='bottom-right' />
+      <Route exact path="/" component={HomePage} />
+      <Route
+        path={"/(.+)"}
+        render={() => (
+          <Fragment>
+            <NavBar />
+            <Container style={{ marginTop: "10em" }}>
+              <Switch>
+                <PrivateRoute exact path="/activities" component={ActivityDashboard} />
+                <PrivateRoute path="/activities/:id" component={ActivityDetails} />
+                <PrivateRoute
+                  key={location.key}
+                  path={["/create", "/manage/:id"]}
+                  component={ActivityForm}
+                />
+                <Route path='/login' component={LoginForm} />
+                <PrivateRoute path='/profile/:username' component={ProfilePage} />
+                <Route component={NotFound} />
+              </Switch>
+            </Container>
+          </Fragment>
+        )}
+      />
     </Fragment>
   );
 };
 
-export default App;
+export default withRouter(observer(App));

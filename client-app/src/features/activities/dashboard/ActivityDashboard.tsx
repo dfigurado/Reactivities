@@ -1,63 +1,58 @@
-import React, { SyntheticEvent } from "react";
-import { Grid } from "semantic-ui-react";
-import { IActivity } from "../../../app/models/activity";
-import { ActivityList } from "./ActivityList";
-import { ActivityDetails } from "../activitydetails/ActivityDetails";
-import { ActivityForm } from "../form/ActivityForm";
+import React, { useContext, useEffect, useState } from "react";
+import { Grid, Loader } from "semantic-ui-react";
+import ActivityList from "./ActivityList";
+import { observer } from "mobx-react-lite";
+import { RootStoreContext } from "../../../app/stores/rootStore";
+import InfiniteScroll from "react-infinite-scroller";
+import ActivityFilter from "./ActivityFilters";
+import ActivityListItemPlaceholder from "./ActivityListItemPlaceholder";
 
-interface IProps {
-  activities: IActivity[];
-  selectActivity: (id: string) => void;
-  selectedActivity: IActivity | null;
-  editMode: boolean;
-  setEditMode: (editMode: boolean) => void;
-  setSelectedActivity: (activity: IActivity | null) => void;
-  createActivity: (activity: IActivity) => void;
-  editActivity: (activity: IActivity) => void;
-  deleteActivity: (e:SyntheticEvent<HTMLButtonElement>, id:string) => void;
-  submitting:boolean;
-  target:string;
-}
+const ActivityDashboard: React.FC = () => {
+  const rootStore = useContext(RootStoreContext);
+  const {
+    loadActivities,
+    loadingInitial,
+    setPage,
+    page,
+    totalPages,
+  } = rootStore.activityStore;
 
-const ActivityDashboard: React.FC<IProps> = ({
-  activities,
-  selectActivity,
-  selectedActivity,
-  editMode,
-  setEditMode,
-  setSelectedActivity,
-  createActivity,
-  editActivity,
-  deleteActivity,
-  submitting,
-  target
-}) => {
+  const [loadingNext, setLoadingNext] = useState(false);
+
+  const handleGetNext = () => {
+    setLoadingNext(true);
+    setPage(page + 1);
+    loadActivities().then(() => setLoadingNext(false));
+  };
+
+  useEffect(() => {
+    loadActivities(); // Store method
+  }, [loadActivities]); // Tell useEffect about the loadActivities functions dependecy
+
   return (
     <Grid>
       <Grid.Column width={10}>
-        <ActivityList activities={activities} selectActivity={selectActivity} deleteActivity={deleteActivity} submitting={submitting} target={target}/>
+        {loadingInitial && page === 0 ? (
+          <ActivityListItemPlaceholder />
+        ) : (
+          <InfiniteScroll
+            pageStart={0}
+            loadMore={handleGetNext}
+            hasMore={!loadingNext && page + 1 < totalPages}
+            initialLoad={false}
+          >
+            <ActivityList />
+          </InfiniteScroll>
+        )}
       </Grid.Column>
       <Grid.Column width={6}>
-        {selectedActivity && !editMode && (
-          <ActivityDetails
-            selectedActivity={selectedActivity}
-            setEditMode={setEditMode}
-            setSelectedActivity={setSelectedActivity}
-          />
-        )}
-        {editMode && (
-          <ActivityForm
-            key={selectedActivity && (selectedActivity.id || 0)}
-            setEditMode={setEditMode}
-            selectedActivity={selectedActivity!}
-            createActivity={createActivity}
-            editActivity={editActivity}
-            submitting={submitting}
-          />
-        )}
+        <ActivityFilter />
+      </Grid.Column>
+      <Grid.Column width={10}>
+        <Loader active={loadingNext} />
       </Grid.Column>
     </Grid>
   );
 };
 
-export default ActivityDashboard;
+export default observer(ActivityDashboard);
