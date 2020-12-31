@@ -12,6 +12,7 @@
     "@types/revalidate": "^1.1.2",
     "@types/uuid": "^3.4.5",
     "axios": "^0.19.0",
+    "css-loader": "^5.0.1",
     "date-fns": "^2.0.0-alpha.13",
     "final-form": "^4.20.1",
     "mobx": "^5.13.0",
@@ -28,6 +29,7 @@
     "react-widgets": "^4.4.11",
     "react-widgets-date-fns": "^4.0.26",
     "revalidate": "^1.2.0",
+    "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.87.3",
     "typescript": "3.5.3",
     "uuid": "^3.3.2"
@@ -35,6 +37,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "postbuild": "move build ../Core/API/wwwroot",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

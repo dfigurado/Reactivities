@@ -23,6 +23,7 @@
   },
   "include": [
     "src",
-    "./typings-custom/**/*.ts"
+    "./typings-custom/**/*.ts",
+    ".css"
   ]
 }

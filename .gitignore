@@ -5,6 +5,7 @@ Core/.vscode
 
 Core/API/obj
 Core/API/bin
+Core/API/wwwroot
 Core/Application/obj
 Core/Application/bin
 Core/Domain/obj
