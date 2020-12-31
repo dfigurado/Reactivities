@@ -6,6 +6,7 @@ import LoginForm from "../activities/user/LoginForm";
 import RegisterForm from "../activities/user/RegisterForm";
 
 const HomePage: React.FC = () => {
+  const token = window.localStorage.getItem('jwt');
   const rootStore = useContext(RootStoreContext);
   const { isLoggedIn, user } = rootStore.userStore;
   const {openModal} = rootStore.modalStore;
@@ -22,7 +23,7 @@ const HomePage: React.FC = () => {
           />
           Reactivities
         </Header>
-        {isLoggedIn && user ? (
+        {isLoggedIn && user && token ? (
           <Fragment>
             <Header
               as="h2"

@@ -27,6 +27,7 @@ using API.SignalR;
 using System.Threading.Tasks;
 using Application.Profiles;
 using Application.Profiles.Interfaces;
+using System;
 
 namespace API
 {
@@ -52,7 +53,12 @@ namespace API
             {
                 opt.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000").AllowCredentials();
+                    policy
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .WithExposedHeaders("WWW-Authenticate")
+                        .WithOrigins("http://localhost:3000")
+                        .AllowCredentials();
                 });
             });
             // MediatR framework used to implent the mediator pattern in .NET CORE API
@@ -97,7 +103,9 @@ namespace API
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = key,
                     ValidateAudience = false,
-                    ValidateIssuer = false
+                    ValidateIssuer = false,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
                 };
                 opt.Events = new JwtBearerEvents
                 {
@@ -113,7 +121,7 @@ namespace API
                     }
                 };
             });
-            
+
             services.AddScoped<IJwtGenerator, JwtGenerator>();
             services.AddScoped<IUserAccessor, UserAccessor>();
             services.AddScoped<IImageAccessor, ImageAccessor>();

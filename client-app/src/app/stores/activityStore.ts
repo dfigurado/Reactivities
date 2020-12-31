@@ -9,6 +9,7 @@ import {createAttendee, setActivityProps} from '../common/util/Util';
 import {HubConnection, HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 
 const LIMIT = 2;
+const CHAT_HUB_URL = process.env.REACT_APP_API_CHAT_URL;
 
 export default class ActivityStore {
 
@@ -38,10 +39,6 @@ export default class ActivityStore {
     @observable page = 0;
     @observable predicate = new Map();
 
-    @computed get totalPages() {
-        return Math.ceil(this.activityCount / LIMIT);
-    }
-
     @computed get axiosParams() {
         const params = new URLSearchParams();
         params.append('limit', String(LIMIT));
@@ -54,6 +51,10 @@ export default class ActivityStore {
             }
         });
         return params;
+    }
+    
+    @computed get totalPages() {
+        return Math.ceil(this.activityCount / LIMIT);
     }
 
     @action setPage = (page:number) => {
@@ -68,7 +69,7 @@ export default class ActivityStore {
     }
     @action createHubConnection = (activityId:string) =>{
         this.hubConnection = new HubConnectionBuilder()
-            .withUrl('http://localhost:5000/chat', {
+            .withUrl(CHAT_HUB_URL!, {
                 accessTokenFactory: () => this.rootStore.commonStore.token!
             })
             .configureLogging(LogLevel.Information)
@@ -89,6 +90,11 @@ export default class ActivityStore {
                 this.activity!.comments.push(comment);
             });
         });
+
+        //Test
+        this.hubConnection.on('Send', message => {
+            toast.info(message);
+        });
     };
 
     @action stopHubConnection = () => {
@@ -97,8 +103,7 @@ export default class ActivityStore {
                 this.hubConnection!.stop();
             })
             .then(() => console.log('Connection stopped'))
-            .catch(err => console.log(err))
-
+            .catch(err => console.log(err));
     }
 
     @action addComment = async (values: any) => {

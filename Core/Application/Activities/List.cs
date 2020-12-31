@@ -39,7 +39,7 @@ namespace Application.Activities
                 OffSet = offSet;
                 IsGoing = isGoing;
                 IsHost = isHost;
-                StartDate = startDate ?? DateTime.Now;
+                StartDate = startDate ?? DateTime.Now; //this ensures only activities happening in future is displayed by default.
             }
         }
 
@@ -71,6 +71,7 @@ namespace Application.Activities
                     .OrderBy(x => x.Date)
                     .AsQueryable();
 
+                //Filter
                 if (request.IsGoing && !request.IsHost)
                 {
                     querable = querable.Where(x => x.UserActivities.Any(a => a.AppUser.UserName == _userAccessor.GetCurrentUsername()));

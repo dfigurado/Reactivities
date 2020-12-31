@@ -1,52 +1,58 @@
-import React, {useContext, useEffect, useState} from 'react';
-import {Grid, Loader} from 'semantic-ui-react';
-import ActivityList from './ActivityList';
-import {observer} from 'mobx-react-lite';
-import Loading from '../../../app/layout/Loading';
-import {RootStoreContext} from '../../../app/stores/rootStore';
-import InfiniteScroll from 'react-infinite-scroller';
+import React, { useContext, useEffect, useState } from "react";
+import { Grid, Loader } from "semantic-ui-react";
+import ActivityList from "./ActivityList";
+import { observer } from "mobx-react-lite";
+import { RootStoreContext } from "../../../app/stores/rootStore";
+import InfiniteScroll from "react-infinite-scroller";
 import ActivityFilter from "./ActivityFilters";
+import ActivityListItemPlaceholder from "./ActivityListItemPlaceholder";
 
 const ActivityDashboard: React.FC = () => {
+  const rootStore = useContext(RootStoreContext);
+  const {
+    loadActivities,
+    loadingInitial,
+    setPage,
+    page,
+    totalPages,
+  } = rootStore.activityStore;
 
-    const rootStore = useContext(RootStoreContext);
-    const {loadActivities, loadingInitial, setPage, page, totalPages} = rootStore.activityStore;
+  const [loadingNext, setLoadingNext] = useState(false);
 
-    const [loadingNext, setLoadingNext] = useState(false);
+  const handleGetNext = () => {
+    setLoadingNext(true);
+    setPage(page + 1);
+    loadActivities().then(() => setLoadingNext(false));
+  };
 
-    const handleGetNext = () => {
-        setLoadingNext(true);
-        setPage(page + 1);
-        loadActivities().then(() => setLoadingNext(false))
-    }
+  useEffect(() => {
+    loadActivities(); // Store method
+  }, [loadActivities]); // Tell useEffect about the loadActivities functions dependecy
 
-    useEffect(() => {
-        loadActivities(); // Store method
-    }, [loadActivities]); //Tell useEffect about the loadActivities functions dependecy
-
-    if (loadingInitial && page === 0)
-        return <Loading content="Loading activities..."/>;
-
-    return (
-        <Grid>
-            <Grid.Column width={10}>
-                <InfiniteScroll
-                    pageStart={0}
-                    loadMore={handleGetNext}
-                    hasMore={!loadingNext && page + 1 < totalPages}
-                    initialLoad={false}
-                >
-                    <ActivityList/>
-                </InfiniteScroll>
-            </Grid.Column>
-            <Grid.Column width={6}>
-               <ActivityFilter />
-            </Grid.Column>
-            <Grid.Column width={10}>
-                <Loader active={loadingNext} />
-            </Grid.Column>
-        </Grid>
-    );
+  return (
+    <Grid>
+      <Grid.Column width={10}>
+        {loadingInitial && page === 0 ? (
+          <ActivityListItemPlaceholder />
+        ) : (
+          <InfiniteScroll
+            pageStart={0}
+            loadMore={handleGetNext}
+            hasMore={!loadingNext && page + 1 < totalPages}
+            initialLoad={false}
+          >
+            <ActivityList />
+          </InfiniteScroll>
+        )}
+      </Grid.Column>
+      <Grid.Column width={6}>
+        <ActivityFilter />
+      </Grid.Column>
+      <Grid.Column width={10}>
+        <Loader active={loadingNext} />
+      </Grid.Column>
+    </Grid>
+  );
 };
 
 export default observer(ActivityDashboard);

@@ -9,7 +9,7 @@ import {
   Switch,
   withRouter,
 } from "react-router-dom";
-import homePage from "../../features/home/HomePage";
+import HomePage from '../../features/home/homePage';
 import ActivityForm from "../../features/activities/form/ActivityForm";
 import ActivityDetails from "../../features/activities/activitydetails/ActivityDetails";
 import NotFound from "./NotFound";
@@ -19,9 +19,9 @@ import ModalContainer from '../common/modals/modalContainer';
 import { ToastContainer } from "react-toastify";
 import { RootStoreContext } from "../stores/rootStore";
 import Loading from "./Loading";
+import PrivateRoute from './PrivateRoute';
 
 const App: React.FC<RouteComponentProps> = ({ location }) => {
-
   const rootStore = useContext(RootStoreContext);
   const { setAppLoaded, token, appLoaded } = rootStore.commonStore;
   const { getUser } = rootStore.userStore;
@@ -40,7 +40,7 @@ const App: React.FC<RouteComponentProps> = ({ location }) => {
     <Fragment>
       <ModalContainer />
       <ToastContainer position='bottom-right' />
-      <Route exact path="/" component={homePage} />
+      <Route exact path="/" component={HomePage} />
       <Route
         path={"/(.+)"}
         render={() => (
@@ -48,15 +48,15 @@ const App: React.FC<RouteComponentProps> = ({ location }) => {
             <NavBar />
             <Container style={{ marginTop: "10em" }}>
               <Switch>
-                <Route exact path="/activities" component={ActivityDashboard} />
-                <Route path="/activities/:id" component={ActivityDetails} />
-                <Route
+                <PrivateRoute exact path="/activities" component={ActivityDashboard} />
+                <PrivateRoute path="/activities/:id" component={ActivityDetails} />
+                <PrivateRoute
                   key={location.key}
                   path={["/create", "/manage/:id"]}
                   component={ActivityForm}
                 />
                 <Route path='/login' component={LoginForm} />
-                <Route path='/profile/:username' component={ProfilePage} />
+                <PrivateRoute path='/profile/:username' component={ProfilePage} />
                 <Route component={NotFound} />
               </Switch>
             </Container>
