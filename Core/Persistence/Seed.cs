@@ -9,8 +9,7 @@ namespace Persistence
 {
     public class Seed
     {
-        public static async Task SeedData(DataContext context,
-            UserManager<AppUser> userManager)
+        public static async Task SeedData(DataContext context, UserManager<AppUser> userManager)
         {
             if (!userManager.Users.Any())
             {
@@ -18,21 +17,21 @@ namespace Persistence
                 {
                     new AppUser
                     {
-                        Id = "a",
+                        Id = "8f5f098f-09a6-4da8-be9f-b94f8e18d466",
                         DisplayName = "Bob",
                         UserName = "bob",
                         Email = "bob@test.com"
                     },
                     new AppUser
                     {
-                        Id = "b",
+                        Id = "f2f35753-1f06-497d-98b7-db17c798e162",
                         DisplayName = "Jane",
                         UserName = "jane",
                         Email = "jane@test.com"
                     },
                     new AppUser
                     {
-                        Id = "c",
+                        Id = "011c70e3-7228-42d1-b5b7-08e467d67805",
                         DisplayName = "Tom",
                         UserName = "tom",
                         Email = "tom@test.com"
@@ -61,7 +60,7 @@ namespace Persistence
                         {
                             new UserActivity
                             {
-                                AppUserId = "a",
+                                AppUserId = "8f5f098f-09a6-4da8-be9f-b94f8e18d466",
                                 IsHost = true,
                                 DateJoined = DateTime.Now.AddMonths(-2)
                             }
@@ -79,13 +78,13 @@ namespace Persistence
                         {
                             new UserActivity
                             {
-                                AppUserId = "b",
+                                AppUserId = "f2f35753-1f06-497d-98b7-db17c798e162",
                                 IsHost = true,
                                 DateJoined = DateTime.Now.AddMonths(-1)
                             },
                             new UserActivity
                             {
-                                AppUserId = "a",
+                                AppUserId = "8f5f098f-09a6-4da8-be9f-b94f8e18d466",
                                 IsHost = false,
                                 DateJoined = DateTime.Now.AddMonths(-1)
                             },
@@ -103,13 +102,13 @@ namespace Persistence
                         {
                             new UserActivity
                             {
-                                AppUserId = "b",
+                                AppUserId = "f2f35753-1f06-497d-98b7-db17c798e162",
                                 IsHost = true,
                                 DateJoined = DateTime.Now.AddMonths(1)
                             },
                             new UserActivity
                             {
-                                AppUserId = "a",
+                                AppUserId = "8f5f098f-09a6-4da8-be9f-b94f8e18d466",
                                 IsHost = false,
                                 DateJoined = DateTime.Now.AddMonths(1)
                             },
@@ -127,13 +126,13 @@ namespace Persistence
                         {
                             new UserActivity
                             {
-                                AppUserId = "c",
+                                AppUserId = "f2f35753-1f06-497d-98b7-db17c798e162",
                                 IsHost = true,
                                 DateJoined = DateTime.Now.AddMonths(2)
                             },
                             new UserActivity
                             {
-                                AppUserId = "a",
+                                AppUserId = "8f5f098f-09a6-4da8-be9f-b94f8e18d466",
                                 IsHost = false,
                                 DateJoined = DateTime.Now.AddMonths(2)
                             },
@@ -151,13 +150,13 @@ namespace Persistence
                         {
                             new UserActivity
                             {
-                                AppUserId = "b",
+                                AppUserId = "f2f35753-1f06-497d-98b7-db17c798e162",
                                 IsHost = true,
                                 DateJoined = DateTime.Now.AddMonths(3)
                             },
                             new UserActivity
                             {
-                                AppUserId = "c",
+                                AppUserId = "011c70e3-7228-42d1-b5b7-08e467d67805",
                                 IsHost = false,
                                 DateJoined = DateTime.Now.AddMonths(3)
                             },
@@ -175,7 +174,7 @@ namespace Persistence
                         {
                             new UserActivity
                             {
-                                AppUserId = "a",
+                                AppUserId = "8f5f098f-09a6-4da8-be9f-b94f8e18d466",
                                 IsHost = true,
                                 DateJoined = DateTime.Now.AddMonths(4)
                             }
@@ -193,13 +192,13 @@ namespace Persistence
                         {
                             new UserActivity
                             {
-                                AppUserId = "c",
+                                AppUserId = "011c70e3-7228-42d1-b5b7-08e467d67805",
                                 IsHost = true,
                                 DateJoined = DateTime.Now.AddMonths(5)
                             },
                             new UserActivity
                             {
-                                AppUserId = "b",
+                                AppUserId = "f2f35753-1f06-497d-98b7-db17c798e162",
                                 IsHost = false,
                                 DateJoined = DateTime.Now.AddMonths(5)
                             },
@@ -217,13 +216,13 @@ namespace Persistence
                         {
                             new UserActivity
                             {
-                                AppUserId = "a",
+                                AppUserId = "8f5f098f-09a6-4da8-be9f-b94f8e18d466",
                                 IsHost = true,
                                 DateJoined = DateTime.Now.AddMonths(6)
                             },
                             new UserActivity
                             {
-                                AppUserId = "b",
+                                AppUserId = "f2f35753-1f06-497d-98b7-db17c798e162",
                                 IsHost = false,
                                 DateJoined = DateTime.Now.AddMonths(6)
                             },
@@ -241,13 +240,13 @@ namespace Persistence
                         {
                             new UserActivity
                             {
-                                AppUserId = "a",
+                                AppUserId = "8f5f098f-09a6-4da8-be9f-b94f8e18d466",
                                 IsHost = true,
                                 DateJoined = DateTime.Now.AddMonths(7)
                             },
                             new UserActivity
                             {
-                                AppUserId = "c",
+                                AppUserId = "011c70e3-7228-42d1-b5b7-08e467d67805",
                                 IsHost = false,
                                 DateJoined = DateTime.Now.AddMonths(7)
                             },
@@ -265,13 +264,13 @@ namespace Persistence
                         {
                             new UserActivity
                             {
-                                AppUserId = "b",
+                                AppUserId = "f2f35753-1f06-497d-98b7-db17c798e162",
                                 IsHost = true,
                                 DateJoined = DateTime.Now.AddMonths(8)
                             },
                             new UserActivity
                             {
-                                AppUserId = "a",
+                                AppUserId = "8f5f098f-09a6-4da8-be9f-b94f8e18d466",
                                 IsHost = false,
                                 DateJoined = DateTime.Now.AddMonths(8)
                             },

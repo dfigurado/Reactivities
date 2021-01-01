@@ -11,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Domain;
 using Persistence;
-using Application.User;
 
 namespace API
 {
@@ -42,7 +41,6 @@ namespace API
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) => 
             WebHost.CreateDefaultBuilder(args)
-                .UseKestrel(x => x.AddServerHeader = false)
                 .UseStartup<Startup>();
     }
 }   

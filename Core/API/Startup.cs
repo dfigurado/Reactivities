@@ -1,3 +1,7 @@
+using System;
+using System.Text;
+using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -5,29 +9,26 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 using MediatR;
+using AutoMapper;
 using FluentValidation.AspNetCore;
 
 using Domain;
 using Persistence;
-using AutoMapper;
+using API.SignalR;
 using API.Middleware;
+using Application.Profiles;
 using Application.Activities;
 using Application.Interfaces;
-using Infrastructure.Security;
-using System.Text;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
-using Infrastructure.Photos;
-using API.SignalR;
-using System.Threading.Tasks;
-using Application.Profiles;
 using Application.Profiles.Interfaces;
-using System;
+using Infrastructure.Photos;
+using Infrastructure.Security;
 
 namespace API
 {
@@ -40,19 +41,20 @@ namespace API
 
         public IConfiguration Configuration { get; }
 
-        //Development
+
+        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureDevelopmentServices(IServiceCollection services)
         {
             services.AddDbContext<DataContext>(opt =>
             {
                 opt.UseLazyLoadingProxies();
-                opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+                opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                //opt.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
             });
 
             ConfigureServices(services);
         }
 
-        //Production
         public void ConfigureProductionServices(IServiceCollection services)
         {
             services.AddDbContext<DataContext>(opt =>
@@ -64,9 +66,16 @@ namespace API
             ConfigureServices(services);
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            /*
+                services.AddDbContext<DataContext>(opt =>
+                {
+                    opt.UseLazyLoadingProxies();
+                    opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+                });
+            */
+
             // CORS policy for react app
             services.AddCors(opt =>
             {
@@ -80,7 +89,7 @@ namespace API
                         .AllowCredentials();
                 });
             });
-            
+
             // MediatR framework used to implent the mediator pattern in .NET CORE API
             services.AddMediatR(typeof(List.Handler).Assembly);
             services.AddAutoMapper(typeof(List.Handler));
@@ -103,8 +112,10 @@ namespace API
             */
             var builder = services.AddIdentityCore<AppUser>();
             var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
+
             identityBuilder.AddEntityFrameworkStores<DataContext>();
             identityBuilder.AddSignInManager<SignInManager<AppUser>>();
+
             // Custome Authorization policy
             services.AddAuthorization(opt =>
             {
@@ -113,6 +124,7 @@ namespace API
                     policy.Requirements.Add(new IsHostRequirement());
                 });
             });
+
             services.AddTransient<IAuthorizationHandler, IsHostRequirementHandler>();
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["TokenKey"]));
@@ -166,12 +178,14 @@ namespace API
             app.UseXfo(opt => opt.Deny());
             app.UseCsp(opt => opt
                 .BlockAllMixedContent()
-                .StyleSources(s => s.Self().CustomSources("https://fonts.googleapis.com"))
+                .StyleSources(s => s.Self()
+                    .CustomSources("https://fonts.googleapis.com",
+                    "sha256-F4GpCPyRepgP5znjMD8sc7PEjzet5Eef4r09dEGPpTs="))
                 .FontSources(s => s.Self().CustomSources("https://fonts.gstatic.com", "data:"))
                 .FormActions(s => s.Self())
                 .FrameAncestors(s => s.Self())
-                .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com").CustomSources("blob:").CustomSources("data:"))
-                .ScriptSources(s => s.Self())
+                .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com", "blob:", "data:"))
+                .ScriptSources(s => s.Self().CustomSources("sha256-ma5XxS1EBgt17N22Qq31rOxxRWRfzUTQS1KOtfYwuNo="))
             );
 
             //app.UseHttpsRedirection();
@@ -180,10 +194,10 @@ namespace API
 
             app.UseRouting();
             app.UseCors("CorsPolicy");
-            
+
             app.UseAuthentication();
             app.UseAuthorization();
-            
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
