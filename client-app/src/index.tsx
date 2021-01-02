@@ -5,6 +5,8 @@ import { createBrowserHistory } from 'history'
 import App from "./app/layout/App";
 import * as serviceWorker from "./serviceWorker";
 import ScrollToTop from '../src/app/layout/ScrollToTop';
+import './app/layout/css/styles.css';
+import 'semantic-ui-css/semantic.min.css';
 import 'react-toastify/dist/ReactToastify.min.css';
 import 'react-widgets/dist/css/react-widgets.css';
 
