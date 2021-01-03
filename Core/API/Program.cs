@@ -11,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Domain;
 using Persistence;
-using Application.User;
 
 namespace API
 {
@@ -40,6 +39,8 @@ namespace API
             host.Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) => WebHost.CreateDefaultBuilder(args).UseStartup<Startup>();
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) => 
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>();
     }
-}
+}   
