@@ -36,7 +36,7 @@ const LoginForm: React.FC = () => {
         pristine,
         dirtySinceLastSubmit,
       }) => (
-        <Form onSubmit={handleSubmit} error>
+        <Form onSubmit={handleSubmit} error autoComplete='off'>
           <Header as='h2' content='Login to Reactivities' color='teal' textAlign='center' ></Header>
           <Field name="email" placeholder="E-mail" component={TextInput} />
           <Field

@@ -85,7 +85,8 @@ const user = {
     current: (): Promise<IUser> => requests.get('/user'),
     login: (user: IUserFormValues): Promise<IUser> => requests.post(`/user/login`, user),
     register: (user: IUserFormValues): Promise<IUser> => requests.post(`/user/register`, user),
-    fblogin: (accessToken: string) => requests.post(`/user/facebook`, {accessToken})
+    fblogin: (accessToken: string) => requests.post(`/user/facebook`, {accessToken}),
+    refreshToken: () : Promise<IUser> => requests.post(`/user/refreshToken`, {})
 }
 
 const profiles = {
