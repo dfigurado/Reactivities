@@ -68,14 +68,6 @@ namespace API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            /*
-                services.AddDbContext<DataContext>(opt =>
-                {
-                    opt.UseLazyLoadingProxies();
-                    opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
-                });
-            */
-
             // CORS policy for react app
             services.AddCors(opt =>
             {
@@ -158,8 +150,10 @@ namespace API
             services.AddScoped<IUserAccessor, UserAccessor>();
             services.AddScoped<IImageAccessor, ImageAccessor>();
             services.AddScoped<IProfileReader, ProfileReader>();
+            services.AddScoped<IFacebookAccessor, FacebookAccessor>();
 
             services.Configure<CloudinarySettings>(Configuration.GetSection("Cloudinary"));
+            services.Configure<FacebookAppSettings>(Configuration.GetSection("Authentication:Facebook"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
