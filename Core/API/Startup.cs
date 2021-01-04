@@ -29,6 +29,7 @@ using Application.Interfaces;
 using Application.Profiles.Interfaces;
 using Infrastructure.Photos;
 using Infrastructure.Security;
+using Infrastructure.Email;
 
 namespace API
 {
@@ -86,27 +87,22 @@ namespace API
             services.AddMediatR(typeof(List.Handler).Assembly);
             services.AddAutoMapper(typeof(List.Handler));
             services.AddSignalR();
-            services.AddMvc(opt =>
-            {
+            services.AddMvc(opt => {
                 opt.EnableEndpointRouting = false;
                 var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
                 opt.Filters.Add(new AuthorizeFilter(policy));
-            }).AddFluentValidation(cfg =>
-                cfg.RegisterValidatorsFromAssemblyContaining<Create>())
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            }).AddFluentValidation(cfg => {
+                cfg.RegisterValidatorsFromAssemblyContaining<Create>();
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-            /*
-            services.AddControllers()
-                .AddFluentValidation(cfg => 
-                { 
-                    cfg.RegisterValidatorsFromAssemblyContaining<Create>(); 
-                });
-            */
-            var builder = services.AddIdentityCore<AppUser>();
+            var builder = services.AddIdentityCore<AppUser>(options => {
+                options.SignIn.RequireConfirmedEmail =  true;
+            });
             var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
 
             identityBuilder.AddEntityFrameworkStores<DataContext>();
             identityBuilder.AddSignInManager<SignInManager<AppUser>>();
+            identityBuilder.AddDefaultTokenProviders();
 
             // Custome Authorization policy
             services.AddAuthorization(opt =>
@@ -146,14 +142,18 @@ namespace API
                 };
             });
 
+
+            // Interfaces and Concreate classes for Dependecy injection.
             services.AddScoped<IJwtGenerator, JwtGenerator>();
             services.AddScoped<IUserAccessor, UserAccessor>();
             services.AddScoped<IImageAccessor, ImageAccessor>();
             services.AddScoped<IProfileReader, ProfileReader>();
             services.AddScoped<IFacebookAccessor, FacebookAccessor>();
+            services.AddScoped<IEmailSender, EmailSender>();
 
             services.Configure<CloudinarySettings>(Configuration.GetSection("Cloudinary"));
             services.Configure<FacebookAppSettings>(Configuration.GetSection("Authentication:Facebook"));
+            services.Configure<SendGridSettings>(Configuration.GetSection("SendGrid"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
