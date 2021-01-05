@@ -69,6 +69,7 @@ namespace API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSwaggerDocument();
             // CORS policy for react app
             services.AddCors(opt =>
             {
@@ -176,17 +177,20 @@ namespace API
                 .BlockAllMixedContent()
                 .StyleSources(s => s.Self()
                     .CustomSources("https://fonts.googleapis.com",
-                    "sha256-F4GpCPyRepgP5znjMD8sc7PEjzet5Eef4r09dEGPpTs="))
+                    "sha256-F4GpCPyRepgP5znjMD8sc7PEjzet5Eef4r09dEGPpTs=",
+                    "sha256-pyVPiLlnqL9OWVoJPs/E6VVF5hBecRzM2gBiarnaqAo="))
                 .FontSources(s => s.Self().CustomSources("https://fonts.gstatic.com", "data:"))
                 .FormActions(s => s.Self())
                 .FrameAncestors(s => s.Self())
                 .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com", "blob:", "data:"))
-                .ScriptSources(s => s.Self().CustomSources("sha256-ma5XxS1EBgt17N22Qq31rOxxRWRfzUTQS1KOtfYwuNo="))
+                .ScriptSources(s => s.Self().CustomSources("sha256-ma5XxS1EBgt17N22Qq31rOxxRWRfzUTQS1KOtfYwuNo=","sha256-o9YqryvYsqgDW0dwRml5lTp2xj7JFP318EeoJJNQS94="))
             );
 
             //app.UseHttpsRedirection();
             app.UseDefaultFiles();
             app.UseStaticFiles();
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
 
             app.UseRouting();
             app.UseCors("CorsPolicy");
