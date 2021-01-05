@@ -20,6 +20,8 @@ import { ToastContainer } from "react-toastify";
 import { RootStoreContext } from "../stores/rootStore";
 import Loading from "./Loading";
 import PrivateRoute from './PrivateRoute';
+import RegisterSuccess from '../../features/activities/user/RegisterSuccess';
+import VerifyEmail from '../../features/activities/user/VerifyEmail';
 
 const App: React.FC<RouteComponentProps> = ({ location }) => {
   const rootStore = useContext(RootStoreContext);
@@ -27,12 +29,12 @@ const App: React.FC<RouteComponentProps> = ({ location }) => {
   const { getUser } = rootStore.userStore;
 
   useEffect(() => {
-    if (token) {
+    if (token && !appLoaded) {
         getUser().finally(() => setAppLoaded());
     } else {
       setAppLoaded();
     }
-  }, [getUser, setAppLoaded, token]);
+  }, [getUser, setAppLoaded, token, appLoaded]);
   
   if (!appLoaded) return <Loading content='Loading app.....' />
 
@@ -57,6 +59,8 @@ const App: React.FC<RouteComponentProps> = ({ location }) => {
                 />
                 <Route path='/login' component={LoginForm} />
                 <PrivateRoute path='/profile/:username' component={ProfilePage} />
+                <Route path='/user/registerSuccess' component={RegisterSuccess}/>
+                <Route path='/user/verifyEmail' component={VerifyEmail}/>
                 <Route component={NotFound} />
               </Switch>
             </Container>

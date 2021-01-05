@@ -24,6 +24,7 @@ namespace API.Middleware
         {
             try
             {
+                // If no  exception moves to next middleware
                 await _next(context);
             }
             catch (Exception ex)

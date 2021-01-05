@@ -1,6 +1,8 @@
+using System;
 using System.Threading.Tasks;
 using Application.User;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -11,27 +13,73 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<User>> Login(Login.Query query)
         {
-            return await Mediator.Send(query);
+            var user = await Mediator.Send(query);
+            SetTokenCookie(user.RefreshToken);
+            return user;
         }
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register(Register.Command command)
+        public async Task<ActionResult> Register(Register.Command command)
         {
-            return await Mediator.Send(command);
+            command.Origin = Request.Headers["origin"];
+            await Mediator.Send(command);
+            return Ok("Registration Successful - please check your email"); // Postman testing
         }
 
         [HttpGet]
         public async Task<ActionResult<User>> CurrentUser()
         {
-            return await Mediator.Send(new CurrentUser.Query());
+            var user = await Mediator.Send(new CurrentUser.Query());
+            SetTokenCookie(user.RefreshToken);
+            return user;
         }
 
         [AllowAnonymous]
         [HttpPost("facebook")]
         public async Task<ActionResult<User>> FacebookLogin(ExternalLogin.Query query)
         {
-            return await Mediator.Send(query);
+            var user = await Mediator.Send(query);
+            SetTokenCookie(user.RefreshToken);
+            return user;
+        }
+
+        [HttpPost("refreshToken")]
+        public async Task<ActionResult<User>> RefreshToken(Application.User.RefreshToken.Command command)
+        {
+            command.RefreshToken = Request.Cookies["refreshToken"];
+            var user = await Mediator.Send(command);
+            SetTokenCookie(user.RefreshToken);
+            return user;
+        }
+
+        [AllowAnonymous]
+        [HttpPost("verifyEmail")]
+        public async Task<ActionResult> VerifyEmail(ConfirmationEmail.Command command)
+        {
+            var result = await Mediator.Send(command);
+            if (!result.Succeeded)
+                return BadRequest("Problem verifying email address");
+            return Ok("Email confirmed - you can now login");
+        }
+
+        [AllowAnonymous]
+        [HttpGet("resendEmailVerification")]
+        public async Task<ActionResult> ResendEmailVerification([FromQuery]ResendEmailVerification.Query query)
+        {
+            query.Origin = Request.Headers["origin"];
+            await Mediator.Send(query);
+            return Ok("Email verification link sent - Please check email");
+        }
+
+        private void SetTokenCookie(string refreshToken)
+        {
+            var cookieOption = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
+            Response.Cookies.Append("refreshToken", refreshToken, cookieOption);
         }
     }
 } 

@@ -29,6 +29,7 @@ using Application.Interfaces;
 using Application.Profiles.Interfaces;
 using Infrastructure.Photos;
 using Infrastructure.Security;
+using Infrastructure.Email;
 
 namespace API
 {
@@ -68,6 +69,7 @@ namespace API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSwaggerDocument();
             // CORS policy for react app
             services.AddCors(opt =>
             {
@@ -86,27 +88,22 @@ namespace API
             services.AddMediatR(typeof(List.Handler).Assembly);
             services.AddAutoMapper(typeof(List.Handler));
             services.AddSignalR();
-            services.AddMvc(opt =>
-            {
+            services.AddMvc(opt => {
                 opt.EnableEndpointRouting = false;
                 var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
                 opt.Filters.Add(new AuthorizeFilter(policy));
-            }).AddFluentValidation(cfg =>
-                cfg.RegisterValidatorsFromAssemblyContaining<Create>())
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            }).AddFluentValidation(cfg => {
+                cfg.RegisterValidatorsFromAssemblyContaining<Create>();
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-            /*
-            services.AddControllers()
-                .AddFluentValidation(cfg => 
-                { 
-                    cfg.RegisterValidatorsFromAssemblyContaining<Create>(); 
-                });
-            */
-            var builder = services.AddIdentityCore<AppUser>();
+            var builder = services.AddIdentityCore<AppUser>(options => {
+                options.SignIn.RequireConfirmedEmail =  true;
+            });
             var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
 
             identityBuilder.AddEntityFrameworkStores<DataContext>();
             identityBuilder.AddSignInManager<SignInManager<AppUser>>();
+            identityBuilder.AddDefaultTokenProviders();
 
             // Custome Authorization policy
             services.AddAuthorization(opt =>
@@ -146,14 +143,18 @@ namespace API
                 };
             });
 
+
+            // Interfaces and Concreate classes for Dependecy injection.
             services.AddScoped<IJwtGenerator, JwtGenerator>();
             services.AddScoped<IUserAccessor, UserAccessor>();
             services.AddScoped<IImageAccessor, ImageAccessor>();
             services.AddScoped<IProfileReader, ProfileReader>();
             services.AddScoped<IFacebookAccessor, FacebookAccessor>();
+            services.AddScoped<IEmailSender, EmailSender>();
 
             services.Configure<CloudinarySettings>(Configuration.GetSection("Cloudinary"));
             services.Configure<FacebookAppSettings>(Configuration.GetSection("Authentication:Facebook"));
+            services.Configure<SendGridSettings>(Configuration.GetSection("SendGrid"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -176,17 +177,20 @@ namespace API
                 .BlockAllMixedContent()
                 .StyleSources(s => s.Self()
                     .CustomSources("https://fonts.googleapis.com",
-                    "sha256-F4GpCPyRepgP5znjMD8sc7PEjzet5Eef4r09dEGPpTs="))
+                    "sha256-F4GpCPyRepgP5znjMD8sc7PEjzet5Eef4r09dEGPpTs=",
+                    "sha256-pyVPiLlnqL9OWVoJPs/E6VVF5hBecRzM2gBiarnaqAo="))
                 .FontSources(s => s.Self().CustomSources("https://fonts.gstatic.com", "data:"))
                 .FormActions(s => s.Self())
                 .FrameAncestors(s => s.Self())
                 .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com", "blob:", "data:"))
-                .ScriptSources(s => s.Self().CustomSources("sha256-ma5XxS1EBgt17N22Qq31rOxxRWRfzUTQS1KOtfYwuNo="))
+                .ScriptSources(s => s.Self().CustomSources("sha256-ma5XxS1EBgt17N22Qq31rOxxRWRfzUTQS1KOtfYwuNo=","sha256-o9YqryvYsqgDW0dwRml5lTp2xj7JFP318EeoJJNQS94="))
             );
 
             //app.UseHttpsRedirection();
             app.UseDefaultFiles();
             app.UseStaticFiles();
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
 
             app.UseRouting();
             app.UseCors("CorsPolicy");
